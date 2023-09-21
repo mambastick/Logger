@@ -4,10 +4,12 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>LoggerService</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Serilog" Version="3.0.1" />
+      <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
       <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
       <PackageReference Include="Serilog.Sinks.Console.LogThemes" Version="0.3.0" />
       <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
