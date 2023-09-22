@@ -1,46 +1,61 @@
-﻿using System.Diagnostics;
-using System.Drawing;
-using Serilog;
-using Serilog.Events;
+﻿using System.Runtime.CompilerServices;
 
 namespace LoggerService;
 
-public static class LoggerFactory
+public enum LogLevel
 {
-    private static readonly ILogger _logger;
+    Debug,
+    Info,
+    Warning,
+    Error,
+    Fatal
+}
 
-    static LoggerFactory()
+public class Logger
+{
+    private string logFilePath;
+
+    public Logger()
     {
-        var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
-        Directory.CreateDirectory(logPath);
+        var logFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
+        Directory.CreateDirectory(logFolder);
 
-        const string logInfo =
-            "[{Timestamp:dd-MM-yyyy HH:mm:ss}] [{Level:u3}] {SourceContext} ({Caller}) {Message:lj}{NewLine}{Exception}";
-        _logger = new LoggerConfiguration()
-            .MinimumLevel.Verbose()
-            .WriteTo.Console(outputTemplate: logInfo, restrictedToMinimumLevel: LogEventLevel.Verbose)
-            .WriteTo.File(Path.Combine(logPath, $"{DateTime.Now:dd-MM-yyyy_HH:mm:ss}.log"),
-                rollingInterval: RollingInterval.Day,
-                outputTemplate: logInfo,
-                restrictedToMinimumLevel: LogEventLevel.Verbose)
-            .CreateLogger();
+        var logFileName = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}.log";
+        logFilePath = Path.Combine(logFolder, logFileName);
     }
 
-    public static ILogger GetLogger() => _logger;
-
-    public static string GetCurrentMethodName()
+    private static ConsoleColor GetConsoleColor(LogLevel level) => level switch
     {
-        var method = new StackFrame(1).GetMethod();
-        return $"{method.DeclaringType?.FullName}.{method.Name}";
+        LogLevel.Debug => ConsoleColor.White,
+        LogLevel.Info => ConsoleColor.Cyan,
+        LogLevel.Warning => ConsoleColor.DarkYellow,
+        LogLevel.Error => ConsoleColor.Red,
+        LogLevel.Fatal => ConsoleColor.DarkRed,
+        _ => ConsoleColor.Gray
+    };
+
+    private void LogToFile(string logEntry)
+    {
+        using var writer = File.AppendText(logFilePath);
+        writer.WriteLine(logEntry);
+    }
+
+    private void Log(LogLevel level, string message, [CallerMemberName] string caller = null)
+    {
+        var timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+        var callerInfo = string.IsNullOrWhiteSpace(caller) ? "" : $"[{caller}]";
+        var logEntry = $"[{timestamp}] [{level}] {callerInfo} {message}";
+
+        Console.ForegroundColor = GetConsoleColor(level);
+        Console.WriteLine(logEntry);
+        Console.ResetColor();
+
+        LogToFile(logEntry);
     }
     
-    private static ConsoleColor GetConsoleColor(LogEventLevel level) => level switch
-    {
-        LogEventLevel.Debug => ConsoleColor.Blue,
-        LogEventLevel.Information => ConsoleColor.Cyan,
-        LogEventLevel.Warning => ConsoleColor.Yellow,
-        LogEventLevel.Error => ConsoleColor.Red,
-        LogEventLevel.Fatal => ConsoleColor.DarkRed,
-        _ => ConsoleColor.White
-    };
+    public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Debug, message, caller);
+    public void LogInformation(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Info, message, caller);
+    public void LogWarning(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Warning, message, caller);
+    public void LogError(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Error, message, caller);
+    public void LogFatal(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Fatal, message, caller);
 }
