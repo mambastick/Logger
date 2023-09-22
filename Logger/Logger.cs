@@ -24,22 +24,6 @@ public class Logger
         logFilePath = Path.Combine(logFolder, logFileName);
     }
 
-    private static ConsoleColor GetConsoleColor(LogLevel level) => level switch
-    {
-        LogLevel.Debug => ConsoleColor.White,
-        LogLevel.Info => ConsoleColor.Cyan,
-        LogLevel.Warning => ConsoleColor.DarkYellow,
-        LogLevel.Error => ConsoleColor.Red,
-        LogLevel.Fatal => ConsoleColor.DarkRed,
-        _ => ConsoleColor.Gray
-    };
-
-    private void LogToFile(string logEntry)
-    {
-        using var writer = File.AppendText(logFilePath);
-        writer.WriteLine(logEntry);
-    }
-
     private void Log(LogLevel level, string message, [CallerMemberName] string caller = null)
     {
         var timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
@@ -52,6 +36,22 @@ public class Logger
 
         LogToFile(logEntry);
     }
+
+    private void LogToFile(string logEntry)
+    {
+        using var writer = File.AppendText(logFilePath);
+        writer.WriteLine(logEntry);
+    }
+
+    private static ConsoleColor GetConsoleColor(LogLevel level) => level switch
+    {
+        LogLevel.Debug => ConsoleColor.White,
+        LogLevel.Info => ConsoleColor.Cyan,
+        LogLevel.Warning => ConsoleColor.DarkYellow,
+        LogLevel.Error => ConsoleColor.Red,
+        LogLevel.Fatal => ConsoleColor.DarkRed,
+        _ => ConsoleColor.Gray
+    };
     
     public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Debug, message, caller);
     public void LogInformation(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Info, message, caller);
