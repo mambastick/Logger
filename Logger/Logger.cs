@@ -6,6 +6,8 @@ public enum LogLevel
 {
     Debug,
     Info,
+    Process,
+    Success,
     Warning,
     Error,
     Fatal
@@ -28,13 +30,19 @@ public class Logger
     {
         var timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
         var callerInfo = string.IsNullOrWhiteSpace(caller) ? "" : $"[{caller}]";
-        var logEntry = $"[{timestamp}] [{level}] {callerInfo} {message}";
+    
+        var messageLines = message.Split('\n'); // Разделяем сообщение на строки
+    
+        foreach (var line in messageLines)
+        {
+            var logEntry = $"[{timestamp}] [{level}] {callerInfo} {line}"; // Добавляем префиксы к каждой строке
 
-        Console.ForegroundColor = GetConsoleColor(level);
-        Console.WriteLine(logEntry);
-        Console.ResetColor();
+            Console.ForegroundColor = GetConsoleColor(level);
+            Console.WriteLine(logEntry);
+            Console.ResetColor();
 
-        LogToFile(logEntry);
+            LogToFile(logEntry);
+        }
     }
 
     private void LogToFile(string logEntry)
@@ -47,6 +55,8 @@ public class Logger
     {
         LogLevel.Debug => ConsoleColor.White,
         LogLevel.Info => ConsoleColor.Cyan,
+        LogLevel.Process => ConsoleColor.DarkYellow,
+        LogLevel.Success => ConsoleColor.Green,
         LogLevel.Warning => ConsoleColor.DarkYellow,
         LogLevel.Error => ConsoleColor.Red,
         LogLevel.Fatal => ConsoleColor.DarkRed,
@@ -55,6 +65,8 @@ public class Logger
     
     public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Debug, message, caller);
     public void LogInformation(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Info, message, caller);
+    public void LogProcess(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Process, message, caller);
+    public void LogSuccess(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Success, message, caller);
     public void LogWarning(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Warning, message, caller);
     public void LogError(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Error, message, caller);
     public void LogFatal(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Fatal, message, caller);
