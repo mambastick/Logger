@@ -15,7 +15,7 @@ public enum LogLevel
 
 public class Logger
 {
-    private string logFilePath;
+    public string logFilePath;
 
     public Logger()
     {
