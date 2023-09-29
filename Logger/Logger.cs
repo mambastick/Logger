@@ -2,7 +2,7 @@
 
 namespace LoggerService;
 
-public enum LogLevel
+public enum Level
 {
     Debug,
     Info,
@@ -26,7 +26,7 @@ public class Logger
         logFilePath = Path.Combine(logFolder, logFileName);
     }
 
-    private void Log(LogLevel level, string message, [CallerMemberName] string caller = null)
+    private void Log(Level level, string message, [CallerMemberName] string caller = null)
     {
         var timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
         var callerInfo = string.IsNullOrWhiteSpace(caller) ? "" : $"[{caller}]";
@@ -52,23 +52,23 @@ public class Logger
         writer.WriteLine(logEntry);
     }
 
-    private static ConsoleColor GetConsoleColor(LogLevel level) => level switch
+    private static ConsoleColor GetConsoleColor(Level level) => level switch
     {
-        LogLevel.Debug => ConsoleColor.Gray,
-        LogLevel.Info => ConsoleColor.Cyan,
-        LogLevel.Process => ConsoleColor.DarkYellow,
-        LogLevel.Success => ConsoleColor.Green,
-        LogLevel.Warning => ConsoleColor.Yellow,
-        LogLevel.Error => ConsoleColor.Red,
-        LogLevel.Fatal => ConsoleColor.DarkRed,
+        Level.Debug => ConsoleColor.Gray,
+        Level.Info => ConsoleColor.Cyan,
+        Level.Process => ConsoleColor.DarkYellow,
+        Level.Success => ConsoleColor.Green,
+        Level.Warning => ConsoleColor.Yellow,
+        Level.Error => ConsoleColor.Red,
+        Level.Fatal => ConsoleColor.DarkRed,
         _ => ConsoleColor.Gray
     };
     
-    public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Debug, message, caller);
-    public void LogInformation(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Info, message, caller);
-    public void LogProcess(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Process, message, caller);
-    public void LogSuccess(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Success, message, caller);
-    public void LogWarning(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Warning, message, caller);
-    public void LogError(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Error, message, caller);
-    public void LogFatal(string message, [CallerMemberName] string caller = null) => Log(LogLevel.Fatal, message, caller);
+    public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(Level.Debug, message, caller);
+    public void LogInformation(string message, [CallerMemberName] string caller = null) => Log(Level.Info, message, caller);
+    public void LogProcess(string message, [CallerMemberName] string caller = null) => Log(Level.Process, message, caller);
+    public void LogSuccess(string message, [CallerMemberName] string caller = null) => Log(Level.Success, message, caller);
+    public void LogWarning(string message, [CallerMemberName] string caller = null) => Log(Level.Warning, message, caller);
+    public void LogError(string message, [CallerMemberName] string caller = null) => Log(Level.Error, message, caller);
+    public void LogFatal(string message, [CallerMemberName] string caller = null) => Log(Level.Fatal, message, caller);
 }
