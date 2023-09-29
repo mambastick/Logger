@@ -15,7 +15,7 @@ public enum Level
 
 public class Logger
 {
-    public string logFilePath;
+    private readonly string LogFilePath;
 
     public Logger()
     {
@@ -23,7 +23,7 @@ public class Logger
         Directory.CreateDirectory(logFolder);
 
         var logFileName = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}.log";
-        logFilePath = Path.Combine(logFolder, logFileName);
+        LogFilePath = Path.Combine(logFolder, logFileName);
     }
 
     private void Log(Level level, string message, [CallerMemberName] string caller = null)
@@ -48,7 +48,7 @@ public class Logger
 
     private void LogToFile(string logEntry)
     {
-        using var writer = File.AppendText(logFilePath);
+        using var writer = File.AppendText(LogFilePath);
         writer.WriteLine(logEntry);
     }
 
@@ -63,6 +63,8 @@ public class Logger
         Level.Fatal => ConsoleColor.DarkRed,
         _ => ConsoleColor.Gray
     };
+
+    public string GetLogFilePath() => LogFilePath;
     
     public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(Level.Debug, message, caller);
     public void LogInformation(string message, [CallerMemberName] string caller = null) => Log(Level.Info, message, caller);
