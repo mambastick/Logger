@@ -31,11 +31,12 @@ public class Logger
         var timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
         var callerInfo = string.IsNullOrWhiteSpace(caller) ? "" : $"[{caller}]";
     
-        var messageLines = message.Split('\n'); // Разделяем сообщение на строки
+        var messageLines = message.Split('\n');
     
         foreach (var line in messageLines)
         {
-            var logEntry = $"[{timestamp}] [{level}] {callerInfo} {line}"; // Добавляем префиксы к каждой строке
+            // ReSharper disable once HeapView.BoxingAllocation
+            var logEntry = $"[{timestamp}] [{level.ToString().ToUpper()}] {callerInfo} {line}";
 
             Console.ForegroundColor = GetConsoleColor(level);
             Console.WriteLine(logEntry);
@@ -53,11 +54,11 @@ public class Logger
 
     private static ConsoleColor GetConsoleColor(LogLevel level) => level switch
     {
-        LogLevel.Debug => ConsoleColor.White,
+        LogLevel.Debug => ConsoleColor.Gray,
         LogLevel.Info => ConsoleColor.Cyan,
         LogLevel.Process => ConsoleColor.DarkYellow,
         LogLevel.Success => ConsoleColor.Green,
-        LogLevel.Warning => ConsoleColor.DarkYellow,
+        LogLevel.Warning => ConsoleColor.Yellow,
         LogLevel.Error => ConsoleColor.Red,
         LogLevel.Fatal => ConsoleColor.DarkRed,
         _ => ConsoleColor.Gray
