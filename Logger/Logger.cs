@@ -29,8 +29,12 @@ public class Logger
     private void Log(Level level, string message, [CallerMemberName] string caller = null)
     {
         var timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+        
+        if (caller == ".ctor")
+            caller = $"{new System.Diagnostics.StackTrace(1).GetFrame(1)?.GetMethod()?.ReflectedType?.Name} constructor";
+        
         var callerInfo = string.IsNullOrWhiteSpace(caller) ? "" : $"[{caller}]";
-    
+        
         var messageLines = message.Split('\n');
     
         foreach (var line in messageLines)
