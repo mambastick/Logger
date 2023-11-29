@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace LoggerService;
+namespace MLoggerService;
 
 public enum MLogLevel
 {
