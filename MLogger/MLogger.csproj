@@ -5,7 +5,25 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>MLoggerService</RootNamespace>
+
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>MConsoleTools</Title>
+        <Authors>mambastick</Authors>
+        <PackageTags>Logs;Logger;ConsoleLog;Logging;</PackageTags>
+        <Description>Library for logging programs.</Description>
+        <RepositoryType>github</RepositoryType>
+        <RepositoryUrl>https://github.com/mambastick/MLogger</RepositoryUrl>
+        <Copyright>Copyright (c) Neelov Eugene 2023</Copyright>
+        <IncludeContentInPack>true</IncludeContentInPack>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageIcon>logo.png</PackageIcon>
     </PropertyGroup>
 
-
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="/" />
+        <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="/" />
+        <None Include="$(MSBuildThisFileDirectory)..\logo.png" Pack="true" PackagePath="/" />
+    </ItemGroup>
+    
 </Project>
