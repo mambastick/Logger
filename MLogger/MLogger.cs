@@ -1,7 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Threading;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace LoggerService;
 
@@ -18,10 +16,11 @@ public enum MLogLevel
 
 public class MLogger
 {
+    private readonly object FileLock = new();
     private readonly string LogFilePath;
-    private readonly Queue<string> logQueue = new Queue<string>();
-    private readonly object logLock = new object();
-    private bool isWriting = false;
+    private readonly object LogLock = new();
+    private readonly Queue<string> LogQueue = new();
+    private bool IsWriting;
 
     public MLogger()
     {
@@ -39,8 +38,7 @@ public class MLogger
         var timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
 
         if (caller == ".ctor")
-            caller =
-                $"{new System.Diagnostics.StackTrace(1).GetFrame(1)?.GetMethod()?.ReflectedType?.Name} constructor";
+            caller = $"{new StackTrace(1).GetFrame(1)?.GetMethod()?.ReflectedType?.Name} constructor";
 
         var callerInfo = string.IsNullOrWhiteSpace(caller) ? "" : $"[{caller}]";
 
@@ -54,9 +52,9 @@ public class MLogger
             Console.WriteLine(logEntry);
             Console.ResetColor();
 
-            lock (logLock)
+            lock (LogLock)
             {
-                logQueue.Enqueue(logEntry);
+                LogQueue.Enqueue(logEntry);
             }
         }
     }
@@ -72,16 +70,18 @@ public class MLogger
         MLogLevel.Fatal => ConsoleColor.DarkRed,
         _ => ConsoleColor.Gray
     };
-    
+
     private void ProcessLogQueue()
     {
         while (true)
         {
             string logEntry = null;
 
-            lock (logLock)
-                if (logQueue.Count > 0)
-                    logEntry = logQueue.Dequeue();
+            lock (LogLock)
+            {
+                if (LogQueue.Count > 0)
+                    logEntry = LogQueue.Dequeue();
+            }
 
             if (logEntry != null)
                 WriteLogToFile(logEntry);
@@ -90,25 +90,28 @@ public class MLogger
         }
     }
 
-    private async void WriteLogToFile(string logEntry)
+    private void WriteLogToFile(string logEntry)
     {
-        while (isWriting)
-            await Task.Delay(10);
+        lock (FileLock)
+        {
+            while (IsWriting) Thread.Sleep(10);
+            IsWriting = true;
 
-        isWriting = true;
-        try
-        {
-            await using var writer = File.AppendText(LogFilePath);
-            await writer.WriteLineAsync(logEntry);
-        }
-        finally
-        {
-            isWriting = false;
+            try
+            {
+                using var writer = File.AppendText(LogFilePath);
+                writer.WriteLine(logEntry);
+            }
+            finally
+            {
+                IsWriting = false;
+            }
         }
     }
 
     public string GetLogFilePath() => LogFilePath;
-    public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(Level.Debug, message, caller);
+
+    public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(MLogLevel.Debug, message, caller);
 
     public void LogInformation(string message, [CallerMemberName] string caller = null) =>
         Log(MLogLevel.Info, message, caller);
