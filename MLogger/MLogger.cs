@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace LoggerService;
 
-public enum Level
+public enum MLogLevel
 {
     Debug,
     Info,
@@ -16,14 +16,14 @@ public enum Level
     Fatal
 }
 
-public class Logger
+public class MLogger
 {
     private readonly string LogFilePath;
     private readonly Queue<string> logQueue = new Queue<string>();
     private readonly object logLock = new object();
     private bool isWriting = false;
 
-    public Logger()
+    public MLogger()
     {
         var logFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
         Directory.CreateDirectory(logFolder);
@@ -34,7 +34,7 @@ public class Logger
         Task.Factory.StartNew(ProcessLogQueue, TaskCreationOptions.LongRunning);
     }
 
-    private void Log(Level level, string message, [CallerMemberName] string caller = null)
+    private void Log(MLogLevel level, string message, [CallerMemberName] string caller = null)
     {
         var timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
 
@@ -61,15 +61,15 @@ public class Logger
         }
     }
 
-    private static ConsoleColor GetConsoleColor(Level level) => level switch
+    private static ConsoleColor GetConsoleColor(MLogLevel level) => level switch
     {
-        Level.Debug => ConsoleColor.Gray,
-        Level.Info => ConsoleColor.Cyan,
-        Level.Process => ConsoleColor.DarkYellow,
-        Level.Success => ConsoleColor.Green,
-        Level.Warning => ConsoleColor.Yellow,
-        Level.Error => ConsoleColor.Red,
-        Level.Fatal => ConsoleColor.DarkRed,
+        MLogLevel.Debug => ConsoleColor.Gray,
+        MLogLevel.Info => ConsoleColor.Cyan,
+        MLogLevel.Process => ConsoleColor.DarkYellow,
+        MLogLevel.Success => ConsoleColor.Green,
+        MLogLevel.Warning => ConsoleColor.Yellow,
+        MLogLevel.Error => ConsoleColor.Red,
+        MLogLevel.Fatal => ConsoleColor.DarkRed,
         _ => ConsoleColor.Gray
     };
     
@@ -111,17 +111,17 @@ public class Logger
     public void LogDebug(string message, [CallerMemberName] string caller = null) => Log(Level.Debug, message, caller);
 
     public void LogInformation(string message, [CallerMemberName] string caller = null) =>
-        Log(Level.Info, message, caller);
+        Log(MLogLevel.Info, message, caller);
 
     public void LogProcess(string message, [CallerMemberName] string caller = null) =>
-        Log(Level.Process, message, caller);
+        Log(MLogLevel.Process, message, caller);
 
     public void LogSuccess(string message, [CallerMemberName] string caller = null) =>
-        Log(Level.Success, message, caller);
+        Log(MLogLevel.Success, message, caller);
 
     public void LogWarning(string message, [CallerMemberName] string caller = null) =>
-        Log(Level.Warning, message, caller);
+        Log(MLogLevel.Warning, message, caller);
 
-    public void LogError(string message, [CallerMemberName] string caller = null) => Log(Level.Error, message, caller);
-    public void LogFatal(string message, [CallerMemberName] string caller = null) => Log(Level.Fatal, message, caller);
+    public void LogError(string message, [CallerMemberName] string caller = null) => Log(MLogLevel.Error, message, caller);
+    public void LogFatal(string message, [CallerMemberName] string caller = null) => Log(MLogLevel.Fatal, message, caller);
 }
